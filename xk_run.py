@@ -6,7 +6,6 @@ with open('save.bin','rb') as f:
     conf=dill.load(f)
 
 s=conf['session']
-base=conf['base']
 
 for uri,(csrf_token,choice) in conf['selects'].items():
     print('=== %s'%uri)
@@ -15,7 +14,7 @@ for uri,(csrf_token,choice) in conf['selects'].items():
         continue
     else:
         print('-> 选择 %d'%choice)
-        res=s.post(base+uri,data=dict(
+        res=s.post(uri,data=dict(
             __RequestVerificationToken=csrf_token,
             rdoId=choice
         ))

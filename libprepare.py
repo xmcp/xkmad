@@ -1,6 +1,7 @@
 #coding=utf-8
 import requests
 import pyquery
+from urllib.parse import urljoin
 
 class CmsSession:
     def __init__(self,logger):
@@ -20,12 +21,12 @@ class CmsSession:
             res.raise_for_status()
 
             pq=pyquery.PyQuery(res.text)
-            csrf_token=pq('form[action=\\/] input[name=__RequestVerificationToken]').val()
-
+            csrf_token=pq('form>input[name=__RequestVerificationToken]').val()
             self.l('正在登录……')
             res=self.s.post(base+'/', data=dict(
                 __RequestVerificationToken=csrf_token,
                 SchoolName='深圳龙创软件',
+                ProgramId=1,
                 UserCode=un,
                 Password=pw,
                 CheckCode='lcsb',
@@ -41,12 +42,12 @@ class CmsSession:
         res.raise_for_status()
 
         pq=pyquery.PyQuery(res.text)
-        cur_ele=pq('.panel-body h3.text-center')
+        cur_ele=pq('form div.text-center')
         if len(cur_ele)==0:
             raise RuntimeError('当前没有选课')
-        self.elid = int(cur_ele.find('a.btn').attr('href').partition('?electiveId=')[2])
-
-        return cur_ele.contents()[0].strip()
+        self.elid=int(cur_ele.parent().find('a.btn').attr('href').partition('?electiveId=')[2])
+        
+        return cur_ele.text()
 
     def details(self):
         self.l('加载时段列表……')
@@ -55,12 +56,12 @@ class CmsSession:
         res.raise_for_status()
         pq=pyquery.PyQuery(res.text)
 
-        periods=pq('a[href^=\\/Elective\\/ElectiveOrg\\/Select]')
+        periods=pq('a[href*=\\/Elective\\/ElectiveOrg\\/Select]')
         for ind,period in enumerate(periods):
             self.l('加载选课详情 (%d/%d)……'%(ind+1,len(periods)))
-            uri=period.attrib['href']
+            uri=urljoin(self.base,period.attrib['href'])
 
-            res=self.s.get(self.base+uri)
+            res=self.s.get(uri)
             res.raise_for_status()
 
             pq=pyquery.PyQuery(res.text)

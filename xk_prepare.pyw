@@ -14,7 +14,7 @@ tk.geometry('800x500')
 selects={}
 unvar=StringVar()
 pwvar=StringVar()
-basevar=StringVar(value='http://123.127.180.224')
+basevar=StringVar(value='http://58.119.34.118/xuanke')
 titlevar=StringVar(value='请登录')
 logvar=StringVar(value='xkmad by @xmcp')
 
@@ -91,7 +91,6 @@ def save():
     with open('save.bin','wb') as f:
         f.write(dill.dumps({
             'session': sess.s,
-            'base': basevar.get(),
             'selects': {k:[v[0],v[1].get()] for k,v in selects.items()}
         }))
     logvar.set('配置保存成功')
