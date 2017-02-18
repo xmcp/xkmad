@@ -23,9 +23,9 @@ class CmsSession:
             pq=pyquery.PyQuery(res.text)
             csrf_token=pq('form>input[name=__RequestVerificationToken]').val()
             self.l('正在登录……')
-            res=self.s.post(base+'/', data=dict(
+            res=self.s.post(base+'/Login', data=dict(
                 __RequestVerificationToken=csrf_token,
-                SchoolName='深圳龙创软件',
+                SchoolName='人大附中',
                 ProgramId=1,
                 UserCode=un,
                 Password=pw,

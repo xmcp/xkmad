@@ -1,11 +1,19 @@
 #coding=utf-8
-import dill
+import pickle
+import requests
 import traceback
-print('=== 加载选课配置')
-with open('save.bin','rb') as f:
-    conf=dill.load(f)
+import os
 
-s=conf['session']
+print('=== 加载选课配置')
+if os.environ.get('XMCP_ENV')!='XMCP':
+    input('您不能运行该测试版！ ')
+    raise SystemExit()
+with open('save.bin','rb') as f:
+    conf=pickle.load(f)
+
+s=requests.Session()
+s.cookies=requests.cookies.RequestsCookieJar()
+s.cookies._cookies=conf['session']
 TIMEOUT=15
 
 for uri,(csrf_token,choice) in conf['selects'].items():
@@ -24,7 +32,7 @@ for uri,(csrf_token,choice) in conf['selects'].items():
                 res.raise_for_status()
                 if res.json()['Status']!=1:
                     raise RuntimeError(res.json()['Message'])
-            except:
+            except Exception:
                 traceback.print_exc()
                 print(' !! 正在重试')
             else:
@@ -32,4 +40,4 @@ for uri,(csrf_token,choice) in conf['selects'].items():
                 break
                 
 print('=== 完成')
-input()
+input('按回车键退出 ')

@@ -3,7 +3,7 @@ from tkinter import *
 from tkinter.ttk import *
 from tkinter import messagebox
 from libprepare import CmsSession
-import dill
+import pickle
 
 tk=Tk()
 tk.title('xkmad prepare')
@@ -89,8 +89,8 @@ def loadcls():
 
 def save():
     with open('save.bin','wb') as f:
-        f.write(dill.dumps({
-            'session': sess.s,
+        f.write(pickle.dumps({
+            'session': sess.s.cookies._cookies,
             'selects': {k:[v[0],v[1].get()] for k,v in selects.items()}
         }))
     logvar.set('配置保存成功')
