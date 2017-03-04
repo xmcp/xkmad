@@ -4,12 +4,17 @@ import requests
 import traceback
 import os
 
+import licenser
+
 print('=== 加载选课配置')
-if os.environ.get('XMCP_ENV')!='XMCP':
-    input('您不能运行该测试版！ ')
-    raise SystemExit()
+with open('sign.bin','rb') as f:
+    sign=f.read()
 with open('save.bin','rb') as f:
-    conf=pickle.load(f)
+    data=f.read()
+    conf=pickle.loads(data)
+if not licenser.verify(sign,data):
+    input('授权验证失败！ ')
+    raise SystemExit()
 
 s=requests.Session()
 s.cookies=requests.cookies.RequestsCookieJar()

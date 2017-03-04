@@ -9,7 +9,6 @@ class CmsSession:
         self.s.headers.update({'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2853.0 Safari/537.36'})
         self.l=logger
         self.base=None # base url
-        self.elid=None # elective id
         self.logged_in=False
 
     def login(self,base,un,pw):
@@ -42,17 +41,17 @@ class CmsSession:
         res.raise_for_status()
 
         pq=pyquery.PyQuery(res.text)
-        cur_ele=pq('form div.text-center')
-        if len(cur_ele)==0:
+        xk_names=pq('form div.text-center')
+        if len(xk_names)==0:
             raise RuntimeError('当前没有选课')
-        self.elid=int(cur_ele.parent().find('a.btn').attr('href').partition('?electiveId=')[2])
         
-        return cur_ele.text()
+        for name in xk_names.items():
+            yield int(name.parent().find('a.btn').attr('href').partition('?electiveId=')[2]),name.text()
 
-    def details(self):
+    def details(self,elid):
         self.l('加载时段列表……')
 
-        res=self.s.get(self.base+'/Elective/ElectiveInputBySchedule/List', params=dict(electiveId=self.elid))
+        res=self.s.get(self.base+'/Elective/ElectiveInputBySchedule/List', params=dict(electiveId=elid))
         res.raise_for_status()
         pq=pyquery.PyQuery(res.text)
 
